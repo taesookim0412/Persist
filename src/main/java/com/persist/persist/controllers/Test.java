@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class Test {
-	@GetMapping("/test")
-	public String test() {
+	@GetMapping("/createRequest/gateway}")
+	public String gateway() {
+
+
 		return "test.jsp";
 	}
 }
