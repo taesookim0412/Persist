@@ -12,6 +12,12 @@ module.exports = function (config) {
       require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
+    proxies:{
+      '/api/slaves': {
+        'target': 'http://localhost:8080/api/slaves',
+        'changeOrigin': true
+      }
+    },
     client: {
       jasmine: {
         // you can add configuration options for Jasmine here

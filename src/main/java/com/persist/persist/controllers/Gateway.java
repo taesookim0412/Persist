@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class Gateway {
-
-
     @GetMapping("/api/gateway")
     public String gateway(){
         return "test.jsp";
     }
+
 
 
 }
