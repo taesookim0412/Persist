@@ -2,10 +2,13 @@ package com.persist.persist.libraries.connections;
 
 import org.springframework.context.annotation.Scope;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -30,21 +33,33 @@ public class Connections{
     private void initializeExampleRequest(){
         HttpClient client = HttpClient.newHttpClient();
         testGetRequest(client);
+        testLocalGetRequest(client);
     }
 
-    //TODO: how to persist?
+
+
+    //The effect of not setting a timeout is the same as setting an infinite Duration, i.e. block forever.
     private HttpRequest createHttpRequest(String url){
         return HttpRequest.newBuilder()
         .uri(URI.create(url)).build();
     }
+
     private void createGetRequest(String url, String body, HttpClient client){
         client.sendAsync(createHttpRequest(url), HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> { System.out.println(response);
+                    return response; } )
                 .thenApply(HttpResponse::body)
                 .thenAccept(System.out::println)
                 .join();
     }
 
     private void testGetRequest(HttpClient client){
+
         this.createGetRequest("https://opentdb.com/api.php?amount=10", "", client);
     }
+
+    private void testLocalGetRequest(HttpClient client) {
+        this.createGetRequest("http://localhost:8090/socket/persist", "", client);
+    }
+
 }
