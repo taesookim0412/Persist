@@ -2,15 +2,22 @@ package com.persist.persist.libraries.connections;
 
 import org.springframework.context.annotation.Scope;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Flow;
+import java.util.stream.Collectors;
 
 @Scope("singleton")
 public class Connections{
@@ -32,7 +39,7 @@ public class Connections{
     }
     private void initializeExampleRequest(){
         HttpClient client = HttpClient.newHttpClient();
-        testGetRequest(client);
+//        testGetRequest(client);
         testLocalGetRequest(client);
     }
 
@@ -44,17 +51,72 @@ public class Connections{
         .uri(URI.create(url)).build();
     }
 
-    private void createGetRequest(String url, String body, HttpClient client){
-        client.sendAsync(createHttpRequest(url), HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> { System.out.println(response);
-                    return response; } )
-                .thenApply(HttpResponse::body)
-                .thenAccept(System.out::println)
-                .join();
+//    private void createGetRequest(String url, String body, HttpClient client){
+//        client.sendAsync(createHttpRequest(url), HttpResponse.BodyHandlers.ofInputStream())
+//                .thenApply(response -> { System.out.println("Apply, " + response);
+//                    return response; } )
+//                .thenApply(HttpResponse::body)
+//                .thenAccept(System.out::println)
+//                .join();
+//    }
+//
+    private void createGetRequest(String url, String body, HttpClient client) {
+        try {
+            HttpResponse<InputStream> response = client.sendAsync(createHttpRequest(url),  HttpResponse.BodyHandlers.ofInputStream())
+                    .thenApply(data -> {
+                        System.out.println(data);
+                        return data;
+                    }).get()
+            ;
+            InputStream stream = response.body();
+            while (true){
+                final byte[] buffer = new byte[1024 * 8];
+                final int len = stream.read(buffer);
+                if (len <= 0){
+                    Thread.sleep(1000);
+                }
+                System.out.println(new String(buffer, StandardCharsets.UTF_8));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
+/*private void createGetRequest(String inputUrl, String body, HttpClient client) {
+        try {
+            final URL url = new URL(inputUrl);
+            final InputStream istream = url.openStream();
+
+            final byte[] buffer = new byte[1024 * 8];
+            while (true) {
+                final int len = istream.read(buffer);
+                if (len <= 0) {
+                    break;
+                }
+                System.out.println(Arrays.toString(buffer));
+            }
+        }
+        catch (Exception e){
+
+    }
+}*/
+
+    //Gets 40 bytes from a single get request
+//    private void createGetRequest(String url, String body, HttpClient client) {
+//        try {
+//            HttpResponse<InputStream> response = client.sendAsync(createHttpRequest(url), HttpResponse.BodyHandlers.ofInputStream()).get();
+//            InputStream stream = response.body();
+//            while(true){
+//                byte[] test = stream.readNBytes(40);
+//                System.out.println(new String(test, StandardCharsets.UTF_8));
+//                Thread.sleep(1000);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     private void testGetRequest(HttpClient client){
-
         this.createGetRequest("https://opentdb.com/api.php?amount=10", "", client);
     }
 
