@@ -63,7 +63,7 @@ public class Connections{
                 final byte[] buffer = new byte[24];
                 int i = 0;
                 while (true){
-                    if (i == buffer.length | stream.available() == 0) {
+                    if (i == buffer.length || stream.available() == 0) {
                         break;
                     }
                     int data = stream.read();
