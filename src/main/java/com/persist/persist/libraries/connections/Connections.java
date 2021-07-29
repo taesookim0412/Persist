@@ -39,7 +39,6 @@ public class Connections{
     }
     private void initializeExampleRequest(){
         HttpClient client = HttpClient.newHttpClient();
-//        testGetRequest(client);
         testLocalGetRequest(client);
     }
 
@@ -51,15 +50,6 @@ public class Connections{
         .uri(URI.create(url)).build();
     }
 
-//    private void createGetRequest(String url, String body, HttpClient client){
-//        client.sendAsync(createHttpRequest(url), HttpResponse.BodyHandlers.ofInputStream())
-//                .thenApply(response -> { System.out.println("Apply, " + response);
-//                    return response; } )
-//                .thenApply(HttpResponse::body)
-//                .thenAccept(System.out::println)
-//                .join();
-//    }
-//
     private void createGetRequest(String url, String body, HttpClient client) {
         try {
             HttpResponse<InputStream> response = client.sendAsync(createHttpRequest(url),  HttpResponse.BodyHandlers.ofInputStream())
@@ -70,12 +60,43 @@ public class Connections{
             ;
             InputStream stream = response.body();
             while (true){
-                final byte[] buffer = new byte[1024 * 8];
-                final int len = stream.read(buffer);
-                if (len <= 0){
-                    Thread.sleep(1000);
+                final byte[] buffer = new byte[24];
+                int i = 0;
+                while (true){
+                    if (i == buffer.length | stream.available() == 0) {
+                        break;
+                    }
+                    int data = stream.read();
+//                    System.out.println(data);
+                    //when does this happen
+                    if (data == -1){
+                        break;
+                    }
+                    else{
+                        buffer[i] = (byte) data;
+                        i += 1;
+                    }
                 }
-                System.out.println(new String(buffer, StandardCharsets.UTF_8));
+                //if there is a response
+                if (i > 0){
+                    int j = buffer.length -1;
+                    while (j >= 0){
+                        //breaks at last character
+                        if (buffer[j] != 0){
+                            break;
+                        }
+//                        System.out.println("!" + buffer[j]);
+                        j -= 1;
+                    }
+                    //slice at index after last char
+                    j += 1;
+                    byte[] fullResponse = Arrays.copyOfRange(buffer, 0, j);
+                    String jsonResponse = new String(fullResponse, StandardCharsets.UTF_8);
+                    System.out.println(jsonResponse);
+                }
+
+                Thread.sleep(1000);
+
             }
 
         } catch (Exception e) {
