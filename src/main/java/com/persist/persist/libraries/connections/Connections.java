@@ -60,40 +60,20 @@ public class Connections{
             ;
             InputStream stream = response.body();
             while (true){
-                final byte[] buffer = new byte[24];
-                int i = 0;
-                while (true){
-                    if (i == buffer.length || stream.available() == 0) {
-                        break;
-                    }
+                StringBuilder sb = new StringBuilder();
+                while (stream.available() != 0){
                     int data = stream.read();
-//                    System.out.println(data);
-                    //when does this happen
-                    if (data == -1){
+                    if (data == 0 || data == -1){
                         break;
                     }
                     else{
-                        buffer[i] = (byte) data;
-                        i += 1;
+                        sb.append((char) data);
                     }
                 }
                 //if there is a response
-                if (i > 0){
-                    int j = buffer.length -1;
-                    while (j >= 0){
-                        //breaks at last character
-                        if (buffer[j] != 0){
-                            break;
-                        }
-//                        System.out.println("!" + buffer[j]);
-                        j -= 1;
-                    }
-                    //slice at index after last char
-                    j += 1;
-                    byte[] fullResponse = Arrays.copyOfRange(buffer, 0, j);
-                    String jsonResponse = new String(fullResponse, StandardCharsets.UTF_8);
-                    System.out.println(jsonResponse);
-                }
+                String jsonString = sb.toString();
+                System.out.println(jsonString);
+
 
                 Thread.sleep(1000);
 
@@ -103,6 +83,7 @@ public class Connections{
             e.printStackTrace();
         }
     }
+
 /*private void createGetRequest(String inputUrl, String body, HttpClient client) {
         try {
             final URL url = new URL(inputUrl);
