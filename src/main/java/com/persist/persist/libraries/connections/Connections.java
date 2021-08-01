@@ -59,6 +59,7 @@ public class Connections{
             ;
             InputStream stream = response.body();
             while (true){
+
                 final byte[] buffer = new byte[32];
                 int len = stream.read(buffer);
                 //if there is a response
@@ -78,6 +79,7 @@ public class Connections{
                     System.out.println(jsonResponse);
                 }
 
+
                 Thread.sleep(1000);
 
             }
@@ -86,6 +88,7 @@ public class Connections{
             e.printStackTrace();
         }
     }
+
 /*private void createGetRequest(String inputUrl, String body, HttpClient client) {
         try {
             final URL url = new URL(inputUrl);
