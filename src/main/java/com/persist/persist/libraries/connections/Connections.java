@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
-@Scope("singleton")
 public class Connections{
     //{ index : Slave }
     public static HashMap<String, Slave> slaves = new HashMap<String, Slave>();
@@ -60,19 +59,25 @@ public class Connections{
             ;
             InputStream stream = response.body();
             while (true){
-                StringBuilder sb = new StringBuilder();
-                while (stream.available() != 0){
-                    int data = stream.read();
-                    if (data == 0 || data == -1){
-                        break;
-                    }
-                    else{
-                        sb.append((char) data);
-                    }
-                }
+
+                final byte[] buffer = new byte[32];
+                int len = stream.read(buffer);
                 //if there is a response
-                String jsonString = sb.toString();
-                System.out.println(jsonString);
+                if (len > 0){
+                    int j = buffer.length -1;
+                    while (j >= 0){
+                        //breaks at last character
+                        if (buffer[j] != 0){
+                            break;
+                        }
+//                        System.out.println("!" + buffer[j]);
+                        j -= 1;
+                    }
+                    //slice at index after last char
+                    byte[] fullResponse = Arrays.copyOfRange(buffer, 0, j + 1);
+                    String jsonResponse = new String(fullResponse, StandardCharsets.UTF_8);
+                    System.out.println(jsonResponse);
+                }
 
 
                 Thread.sleep(1000);
