@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class Gateway {
+    @GetMapping("/")
+    public String home(){
+        return "index.html";
+    }
+
     @GetMapping("/api/gateway")
     public String gateway(){
         return "test.jsp";
